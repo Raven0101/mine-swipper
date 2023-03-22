@@ -15,7 +15,11 @@ class Grid {
   }
   removeMark() {
     this.marked = 0
-    this.show = 'v'
+    if (this.opened) {
+      this.show = this.bombCount
+    } else {
+      this.show = '*'
+    }
   }
   open() {
     this.opened = 1
@@ -108,7 +112,7 @@ class Maps {
   }
   choose(index) {
     function check(map, index) {
-      console.log('index :>> ', index)
+      // console.log('index :>> ', index)
       let [i, j] = index
       let h = map.length
       let w = map[0].length
@@ -134,20 +138,33 @@ class Maps {
       this.gameOver()
     } else {
       check(this.content, index)
+      this.ifWin()
     }
   }
   gameOver() {
     this.showAll()
     this.gameover = -1
   }
-  win() {
+  ifWin() {
     let rest = 0
     this.forEach2d((item) => {
-      rest += item.isBomb
+      if (item.isBomb && item.marked) {
+        rest++
+      }
     })
     if (rest == this.totalBomb) {
       this.gameover = 1
     }
+    console.log('rest :>> ', rest)
+  }
+  restCnt() {
+    let rest = 0
+    this.forEach2d((item) => {
+      if (item.marked) {
+        rest++
+      }
+    })
+    return rest + '/' + this.totalBomb
   }
 }
 
