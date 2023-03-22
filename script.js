@@ -12,7 +12,8 @@ function start() {
   let size = Number(sizeEle.value)
   let bombs = Number(bombEle.value)
   testMap = new Maps([size, size], bombs)
-
+  document.getElementById('hint').innerText =
+    'input point you want to check, range 0~size-1'
   containerEle.innerText = testMap.print()
 }
 
@@ -21,6 +22,11 @@ function next() {
   let x = Number(xindex.value)
   let y = Number(yindex.value)
   testMap.choose([x, y])
+  if (testMap.gameover == -1) {
+    document.getElementById('hint').innerText = 'game over'
+  } else if (testMap.gameover == 1) {
+    document.getElementById('hint').innerText = 'you win'
+  }
   containerEle.innerText = testMap.print()
 }
 startButton.addEventListener('click', start)

@@ -30,6 +30,7 @@ class Maps {
     ;[this.width, this.height] = size
     this.totalBomb = number
     this.content = []
+    this.gameover = 0
     this.init()
   }
   init() {
@@ -136,7 +137,17 @@ class Maps {
     }
   }
   gameOver() {
-    console.log('game over')
+    this.showAll()
+    this.gameover = -1
+  }
+  win() {
+    let rest = 0
+    this.forEach2d((item) => {
+      rest += item.isBomb
+    })
+    if (rest == this.totalBomb) {
+      this.gameover = 1
+    }
   }
 }
 
