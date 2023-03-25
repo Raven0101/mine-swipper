@@ -3,12 +3,15 @@ class Grid {
   constructor(isBomb, index) {
     this.index = index
     this.isBomb = isBomb
-    this.bombNumber = -1
+    this.num = -1
     this.bombCount = this.isBomb ? '-' : -1
     this.show = '*'
     this.marked = 0
     this.opened = 0
   }
+  // set isBomb(value){
+  //   if(value==1){this.bombCount='-'}
+  // }
   mark() {
     this.marked = 1
     this.show = 'v'
@@ -35,21 +38,28 @@ class Maps {
     this.totalBomb = number
     this.content = []
     this.gameover = 0
-    this.init()
-  }
-  init() {
-    this.getBombs()
+    this.bombIndex = []
     this.creadChessBoard()
+    // this.init()
+  }
+  init(index) {
+    // 第一次点击后初始化地雷
+    this.getBombs(index)
+    // this.creadChessBoard()
     // console.log('this.content :>> ', this.content)
+    this.setBombs()
     this.setGridProps()
     console.log('this.bombIndex :>> ', this.bombIndex)
   }
-  getBombs() {
+  getBombs(firstClick) {
+    // 随机生成地雷
     let totalGrid = this.width * this.height
+    let firstClickIndex = firstClick[0] * this.height + firstClick[1]
+    console.log('firstCliclIndex :>> ', firstClickIndex)
     let bombIndex = []
     for (let i = 0; i < this.totalBomb; i++) {
       let index = Math.floor(Math.random() * totalGrid)
-      while (bombIndex.includes(index)) {
+      while (bombIndex.includes(index) || index == firstClickIndex) {
         index = Math.floor(Math.random() * totalGrid)
       }
       bombIndex.push(index)
@@ -57,18 +67,28 @@ class Maps {
     this.bombIndex = bombIndex
   }
   creadChessBoard() {
+    // 创建空棋盘
     let cnt = 0
     for (let i = 0; i < this.height; i++) {
       this.content[i] = new Array(this.width)
       for (let j = 0; j < this.width; j++) {
-        let b = this.bombIndex.includes(cnt) ? 1 : 0
-        this.content[i][j] = new Grid(b, [i, j])
-        this.content[i][j].bombNumber = cnt
+        // let b = this.bombIndex.includes(cnt) ? 1 : 0
+        this.content[i][j] = new Grid(0, [i, j])
+        this.content[i][j].num = cnt
         cnt += 1
       }
     }
   }
+  setBombs() {
+    // 设置地雷
+    this.forEach2d((item) => {
+      if (this.bombIndex.includes(item.num)) {
+        item.isBomb = 1
+      }
+    })
+  }
   setGridProps() {
+    // 计算每个格周围地雷数
     this.content.forEach((col) => {
       col.forEach((g) => {
         if (!g.isBomb) {
@@ -86,6 +106,8 @@ class Maps {
             })
           })
           g.bombCount = cnt
+        } else {
+          g.bombCount = '-'
         }
       })
     })
