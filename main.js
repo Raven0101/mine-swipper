@@ -5,7 +5,7 @@ class Grid {
     this.isBomb = isBomb
     this.num = -1
     this.bombCount = this.isBomb ? '-' : -1
-    this.show = '*'
+    this.show = ''
     this.marked = 0
     this.opened = 0
   }
@@ -21,7 +21,7 @@ class Grid {
     if (this.opened) {
       this.show = this.bombCount
     } else {
-      this.show = '*'
+      this.show = ''
     }
   }
   open() {
@@ -170,7 +170,10 @@ class Maps {
   ifWin() {
     let rest = 0
     this.forEach2d((item) => {
-      if (item.isBomb && item.marked) {
+      // if (item.isBomb && (item.marked || !item.opened)) {
+      //   rest++
+      // }
+      if (!item.opened) {
         rest++
       }
     })
