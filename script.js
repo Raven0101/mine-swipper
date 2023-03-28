@@ -11,6 +11,8 @@ var restCnt = document.getElementById('restCnt')
 var mapDiv = document.getElementById('map-container')
 
 var testMap = undefined
+var onTouch = 0
+var timeout = 0
 const defHint =
   '<span >left click to open a grid, right click to mark a bomb. When you open all no-bomb grid, you win.</span>'
 
@@ -42,6 +44,8 @@ function createTableMap() {
       newGrid.innerText = item.show
       newGrid.addEventListener('click', clickGrid)
       newGrid.addEventListener('contextmenu', clickGrid)
+      newGrid.addEventListener('touchstart', touchstart)
+      newGrid.addEventListener('touchend', touchEnd)
       newCol.appendChild(newGrid)
     })
   })
@@ -143,10 +147,36 @@ function rmEvent() {
       let e = document.getElementById(id)
       e.removeEventListener('click', clickGrid)
       e.removeEventListener('contextmenu', clickGrid)
+      e.removeEventListener('touchstart', touchstart)
+      e.removeEventListener('touchend', touchEnd)
     })
   })
 }
+
+function touchstart(e) {
+  e.preventDefault()
+  onTouch = 1
+  timeout = setTimeout(() => {
+    onTouch = 0
+    if (onTouch == 0) {
+      let list = e.target.id.split('-').map((i) => Number(i))
+      mark([list[1], list[2]])
+    }
+    console.log('onTouch :>> ', onTouch)
+  }, 300)
+}
+
+function touchEnd(e) {
+  console.log('touchEnd  :>> ', onTouch)
+  clearTimeout(timeout)
+  if (onTouch !== 0) {
+    e.button = 0
+    clickGrid(e)
+  }
+  onTouch = 0
+}
 startButton.addEventListener('click', start)
-// continueButton.addEventListener('click', next)
+// continueButton.addEventListener('touchstart', touchstart)
+// continueButton.addEventListener('touchend', touchEnd)
 // markButton.addEventListener('click', mark)
 // rmMarkButton.addEventListener('click', rmMark)
