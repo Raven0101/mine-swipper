@@ -1,25 +1,22 @@
-var sizeEle = document.getElementById('size')
+var sizeEleX = document.getElementById('sizex')
+var sizeEleY = document.getElementById('sizey')
 var bombEle = document.getElementById('bombs')
-var containerEle = document.getElementById('container')
 var startButton = document.getElementById('start')
-// var xindex = document.getElementById('x')
-// var yindex = document.getElementById('y')
-// var continueButton = document.getElementById('continue')
-// var markButton = document.getElementById('mark')
-// var rmMarkButton = document.getElementById('rmmark')
 var restCnt = document.getElementById('restCnt')
 var mapDiv = document.getElementById('map-container')
+var hintSpan = document.getElementById('hint')
 
 var testMap = undefined
 var onTouch = 0
 var timeout = 0
-const defHint =
-  '<span >left click to open a grid, right click to mark a bomb. When you open all no-bomb grid, you win.</span>'
+const defHint = hintSpan.innerHTML
 
 function start() {
-  let size = Number(sizeEle.value)
+  let div = document.getElementById('restCnt-div')
+  div.style.display = ''
+  let size = [Number(sizeEleX.value), Number(sizeEleY.value)]
   let bombs = Number(bombEle.value)
-  testMap = new Maps([size, size], bombs)
+  testMap = new Maps(size, bombs)
   document.getElementById('hint').innerHTML = defHint
   // containerEle.innerText = testMap.print()
   createTableMap()
@@ -53,7 +50,6 @@ function createTableMap() {
 
 function clickGrid(e) {
   e.preventDefault()
-  console.log('click e :>> ', e.button)
   let list = e.target.id.split('-').map((i) => Number(i))
   if (e.button == 0) {
     next([list[1], list[2]])
@@ -69,10 +65,9 @@ function updateTableGrid() {
       let e = document.getElementById(id)
       let classes = e.classList.value.split(' ')
       e.classList.remove(...classes)
-      // console.log('classes :>> ', classes)
       e.classList.add('default-grid')
       if (item.show !== '') {
-        if (item.show == 'v') {
+        if (item.show == '\u2691') {
           e.classList.add('marked')
         } else if (item.show == '-') {
           e.classList.add('bomb')
@@ -86,7 +81,6 @@ function updateTableGrid() {
 }
 
 function next(index) {
-  console.log(testMap.print())
   if (index) {
     ;[x, y] = index
   } else {
@@ -95,11 +89,9 @@ function next(index) {
   }
 
   if (testMap.bombIndex.length == 0) {
-    console.log('init')
     testMap.init([x, y])
   }
   testMap.choose([x, y])
-  // testMap.ifWin()
   if (testMap.gameover == -1) {
     document.getElementById('hint').innerText = 'BOOM! Game over.'
     rmEvent()
@@ -107,7 +99,6 @@ function next(index) {
     document.getElementById('hint').innerText = 'CONGRATULATIONS! You win.'
     rmEvent()
   }
-  // containerEle.innerText = testMap.print()
   updateTableGrid()
   restCnt.innerText = testMap.restCnt()
 }
@@ -120,7 +111,6 @@ function mark(index) {
   } else {
     grid.mark()
   }
-  // containerEle.innerText = testMap.print()
   updateTableGrid()
   restCnt.innerText = testMap.restCnt()
   testMap.ifWin()
@@ -135,7 +125,6 @@ function rmMark() {
   let x = Number(xindex.value)
   let y = Number(yindex.value)
   testMap.content[x][y].removeMark()
-  // containerEle.innerText = testMap.print()
   updateTableGrid()
   restCnt.innerText = testMap.restCnt()
 }
@@ -162,12 +151,10 @@ function touchstart(e) {
       let list = e.target.id.split('-').map((i) => Number(i))
       mark([list[1], list[2]])
     }
-    console.log('onTouch :>> ', onTouch)
   }, 300)
 }
 
 function touchEnd(e) {
-  console.log('touchEnd  :>> ', onTouch)
   clearTimeout(timeout)
   if (onTouch !== 0) {
     e.button = 0
@@ -176,7 +163,3 @@ function touchEnd(e) {
   onTouch = 0
 }
 startButton.addEventListener('click', start)
-// continueButton.addEventListener('touchstart', touchstart)
-// continueButton.addEventListener('touchend', touchEnd)
-// markButton.addEventListener('click', mark)
-// rmMarkButton.addEventListener('click', rmMark)

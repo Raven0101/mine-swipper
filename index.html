@@ -1,60 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+
+<head>
     <title>mine swipper</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-  </head>
+</head>
 
-  <body>
-    <h1>Welcome</h1>
-    <span>set map size</span>
-    <input type="text" id="size" />
-    <span>set total bombs</span>
-    <input type="text" id="bombs" />
-    <button id="start">start</button>
-    <div id="container"></div>
-    <div id="map-container"></div>
-    <!-- <table ></table> -->
-    <div id="hint">
-      <span
-        >left click to open a grid, right click to mark a bomb. When you open
-        all no-bomb grid, you win.</span
-      >
+<body>
+    <div class="page">
+        <h1>mine sweeper game</h1>
+        <div>
+            <span>set map size (height x width):</span>
+            <input type="text" id="sizex" class="size-input" /><span> x </span>
+            <input type="text" id="sizey" class="size-input" />
+            <span style="margin-left:15px">set total bombs</span>
+            <input type="text" id="bombs" class="size-input" />
+            <button id="start" style="margin-left:15px">start</button>
+        </div>
+        <div id="hint">
+            <span>Left click to open a grid, right click to mark a bomb (long press while using mobile device).</br> When you open all no-bomb grid, you win.</span>
+
+        </div>
+        <div class="count" id="restCnt-div" style="display:none">status: <span id="restCnt"></span></div>
+
+        <div id="map-container" class="map-container"></div>
+
     </div>
-    <div>status: <span id="restCnt"></span></div>
-    <!-- x:<input type="text" id="x" /> y: -->
-    <!-- <input type="text" id="y" /> -->
-    <!-- <button id="continue">continue</button> -->
-    <!-- <button id="mark">this is bomb</button> -->
-    <!-- <button id="rmmark">this is not bomb</button> -->
+
 
     <script src="./main.js" type="text/javascript"></script>
     <script type="text/javascript" src="./script.js"></script>
     <style lang="css">
-      .default-grid {
-        height: 1rem;
-        width: 1rem;
-        min-width: 1rem;
-        line-height: 1rem;
-        border: solid 1px #000;
-        cursor: pointer;
-        text-align: center;
-        background-color: #333;
-      }
-
-      .open {
-        background-color: #fff;
-      }
-
-      .marked {
-        background-color: #666;
-        color: aliceblue;
-      }
-
-      .bomb {
-        background-color: red;
-      }
+        .page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        #hint {
+            margin-top: 3px;
+        }
+        
+        .count {
+            font-size: 12px
+        }
+        
+        .size-input {
+            width: 20px
+        }
+        
+        .map-container {
+            background-color: #cccccc;
+            width: fit-content;
+            margin: 10px;
+        }
+        
+        .default-grid {
+            height: 1rem;
+            width: 1rem;
+            min-width: 1rem;
+            line-height: 1rem;
+            border: solid 1px #000;
+            cursor: pointer;
+            text-align: center;
+            background-color: #333;
+            transition: all 0.3s
+        }
+        
+        .open {
+            background-color: #fff;
+        }
+        
+        .marked {
+            background-color: #20894d;
+            color: #fffef8;
+        }
+        
+        .bomb {
+            background-color: #cc163a;
+        }
     </style>
-  </body>
+</body>
+
 </html>

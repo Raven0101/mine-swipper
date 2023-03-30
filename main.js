@@ -9,12 +9,10 @@ class Grid {
     this.marked = 0
     this.opened = 0
   }
-  // set isBomb(value){
-  //   if(value==1){this.bombCount='-'}
-  // }
+
   mark() {
     this.marked = 1
-    this.show = 'v'
+    this.show = '\u2691'
   }
   removeMark() {
     this.marked = 0
@@ -40,22 +38,17 @@ class Maps {
     this.gameover = 0
     this.bombIndex = []
     this.creadChessBoard()
-    // this.init()
   }
   init(index) {
     // 第一次点击后初始化地雷
     this.getBombs(index)
-    // this.creadChessBoard()
-    // console.log('this.content :>> ', this.content)
     this.setBombs()
     this.setGridProps()
-    console.log('this.bombIndex :>> ', this.bombIndex)
   }
   getBombs(firstClick) {
     // 随机生成地雷
     let totalGrid = this.width * this.height
     let firstClickIndex = firstClick[0] * this.height + firstClick[1]
-    console.log('firstCliclIndex :>> ', firstClickIndex)
     let bombIndex = []
     for (let i = 0; i < this.totalBomb; i++) {
       let index = Math.floor(Math.random() * totalGrid)
@@ -134,7 +127,6 @@ class Maps {
   }
   choose(index) {
     function check(map, index) {
-      // console.log('index :>> ', index)
       let [i, j] = index
       let h = map.length
       let w = map[0].length
@@ -170,9 +162,6 @@ class Maps {
   ifWin() {
     let rest = 0
     this.forEach2d((item) => {
-      // if (item.isBomb && (item.marked || !item.opened)) {
-      //   rest++
-      // }
       if (!item.opened) {
         rest++
       }
@@ -180,7 +169,6 @@ class Maps {
     if (rest == this.totalBomb) {
       this.gameover = 1
     }
-    console.log('rest :>> ', rest)
   }
   restCnt() {
     let rest = 0
@@ -192,52 +180,3 @@ class Maps {
     return rest + '/' + this.totalBomb
   }
 }
-
-// let click = [2, 3]
-// const testMap = new Maps([5, 5], 5)
-// testMap.init()
-// testMap.choose(click)
-// console.log(testMap.print())
-// Array.prototype.getRow = function (ind) {
-//   let row = []
-//   this.forEach((v) => {
-//     row.push(v[ind])
-//   })
-//   return row
-// }
-
-// Array.prototype.show2d = function () {
-//   let output = ''
-//   this.forEach((i) => {
-//     output = output.concat(i.join(' ') + '\n')
-//   })
-//   return output
-// }
-
-// let i = 3
-// let j = 1
-// let _j = j
-
-// function check(map, index) {
-//   console.log('index :>> ', index)
-//   let [i, j] = index
-//   let h = map.length
-//   let w = map[0].length
-//   if (map[i][j] != 0) return
-//   map[i][j] = 2
-//   if (i != 0 && map[i - 1][j] == 0) {
-//     check(map, [i - 1, j])
-//   }
-//   if (i != h - 1 && map[i + 1][j] == 0) {
-//     check(map, [i + 1, j])
-//   }
-//   if (j != 0 && map[i][j - 1] == 0) {
-//     check(map, [i, j - 1])
-//   }
-//   if (j != w - 1 && map[i][j + 1] == 0) {
-//     check(map, [i, j + 1])
-//   }
-// }
-// check(maps, [3, 0])
-
-// console.log(maps.show2d())
