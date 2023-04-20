@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>mine swipper</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+
+  <body>
+    <h1>Welcome</h1>
+    <span>set map size</span>
+    <input type="text" id="size" />
+    <span>set total bombs</span>
+    <input type="text" id="bombs" />
+    <button id="start">start</button>
+    <div id="container"></div>
+    <div id="map-container"></div>
+    <!-- <table ></table> -->
+    <div id="hint">
+      <span
+        >left click to open a grid, right click to mark a bomb. When you open
+        all no-bomb grid, you win.</span
+      >
+    </div>
+    <div>status: <span id="restCnt"></span></div>
+
+    <script type="text/javascript">
+      //mine swipper demo
+      class Grid {
+        constructor(isBomb, index) {
+          this.index = index
+          this.isBomb = isBomb
+          this.num = -1
+          this.bombCount = this.isBomb ? '-' : -1
+          this.show = ''
+          this.marked = 0
+          this.opened = 0
+        }
+        // set isBomb(value){
+        //   if(value==1){this.bombCount='-'}
+        // }
+        mark() {
+          this.marked = 1
+          this.show = 'v'
+        }
+        removeMark() {
+          this.marked = 0
+          if (this.opened) {
+            this.show = this.bombCount
+          } else {
+            this.show = ''
+          }
+        }
+        open() {
+          this.opened = 1
+          this.show = this.bombCount
+        }
+        isOpened() {
+          return this.opened || this.isBomb ? 1 : 0
+        }
+      }
+      class Maps {
+        constructor(size, number) {
+          ;[this.width, this.height] = size
+          this.totalBomb = number
+          this.content = []
+          this.gameover = 0
+          this.bombIndex = []
+          this.creadChessBoard()
+          // this.init()
+        }
+        init(index) {
+          // 第一次点击后初始化地雷
+          this.getBombs(index)
+          // this.creadChessBoard()
+          this.setBombs()
+          this.setGridProps()
+        }
+        getBombs(firstClick) {
+          // 随机生成地雷
+          let totalGrid = this.width * this.height
+          let firstClickIndex = firstClick[0] * this.height + firstClick[1]
+          let bombIndex = []
+          for (let i = 0; i < this.totalBomb; i++) {
+            let index = Math.floor(Math.random() * totalGrid)
+            while (bombIndex.includes(index) || index == firstClickIndex) {
+              index = Math.floor(Math.random() * totalGrid)
+            }
+            bombIndex.push(index)
+          }
+          this.bombIndex = bombIndex
+        }
+        creadChessBoard() {
+          // 创建空棋盘
+          let cnt = 0
+          for (let i = 0; i < this.height; i++) {
+            this.content[i] = new Array(this.width)
+            for (let j = 0; j < this.width; j++) {
+              // let b = this.bombIndex.includes(cnt) ? 1 : 0
+              this.content[i][j] = new Grid(0, [i, j])
+              this.content[i][j].num = cnt
+              cnt += 1
+            }
+          }
+        }
+        setBombs() {
+          // 设置地雷
+          this.forEach2d((item) => {
+            if (this.bombIndex.includes(item.num)) {
+              item.isBomb = 1
+            }
+          })
+        }
+        setGridProps() {
+          // 计算每个格周围地雷数
+          this.content.forEach((col) => {
+            col.forEach((g) => {
+              if (!g.isBomb) {
+                let [x, y] = g.index
+                let xindex = [x]
+                let yindex = [y]
+                x != 0 && xindex.unshift(x - 1)
+                x != this.height - 1 && xindex.push(x + 1)
+                y != 0 && yindex.unshift(y - 1)
+                y != this.width - 1 && yindex.push(y + 1)
+                let cnt = 0
+                xindex.forEach((xval) => {
+                  yindex.forEach((yval) => {
+                    cnt += this.content[xval][yval].isBomb
+                  })
+                })
+                g.bombCount = cnt
+              } else {
+                g.bombCount = '-'
+              }
+            })
+          })
+        }
+        print() {
+          let output = ''
+          this.content.forEach((i) => {
+            output = output.concat(i.map((v) => v.show).join(' ') + '\n')
+          })
+          return output
+        }
+
+        forEach2d(func) {
+          this.content.forEach((col) => {
+            col.forEach((item) => {
+              func(item)
+            })
+          })
+        }
+        showAll() {
+          this.forEach2d((item) => {
+            item.open()
+          })
+        }
+        choose(index) {
+          function check(map, index) {
+            let [i, j] = index
+            let h = map.length
+            let w = map[0].length
+            if (map[i][j].isBomb != 0) {
+              return
+            }
+            map[i][j].show = map[i][j].bombCount
+            map[i][j].opened = 1
+            if (i != 0 && map[i - 1][j].isOpened() == 0) {
+              check(map, [i - 1, j])
+            }
+            if (i != h - 1 && map[i + 1][j].isOpened() == 0) {
+              check(map, [i + 1, j])
+            }
+            if (j != 0 && map[i][j - 1].isOpened() == 0) {
+              check(map, [i, j - 1])
+            }
+            if (j != w - 1 && map[i][j + 1].isOpened() == 0) {
+              check(map, [i, j + 1])
+            }
+          }
+          if (this.content[index[0]][index[1]].isBomb == 1) {
+            this.gameOver()
+          } else {
+            check(this.content, index)
+            this.ifWin()
+          }
+        }
+        gameOver() {
+          this.showAll()
+          this.gameover = -1
+        }
+        ifWin() {
+          let rest = 0
+          this.forEach2d((item) => {
+            // if (item.isBomb && (item.marked || !item.opened)) {
+            //   rest++
+            // }
+            if (!item.opened) {
+              rest++
+            }
+          })
+          if (rest == this.totalBomb) {
+            this.gameover = 1
+          }
+        }
+        restCnt() {
+          let rest = 0
+          this.forEach2d((item) => {
+            if (item.marked) {
+              rest++
+            }
+          })
+          return rest + '/' + this.totalBomb
+        }
+      }
+    </script>
+    <script type="text/javascript">
+      var sizeEle = document.getElementById('size')
+      var bombEle = document.getElementById('bombs')
+      var containerEle = document.getElementById('container')
+      var startButton = document.getElementById('start')
+      var restCnt = document.getElementById('restCnt')
+      var mapDiv = document.getElementById('map-container')
+
+      var testMap = undefined
+      var onTouch = 0
+      var timeout = 0
+      const defHint =
+        '<span >left click to open a grid, right click to mark a bomb. When you open all no-bomb grid, you win.</span>'
+
+      function start() {
+        let size = Number(sizeEle.value)
+        let bombs = Number(bombEle.value)
+        testMap = new Maps([size, size], bombs)
+        document.getElementById('hint').innerHTML = defHint
+        // containerEle.innerText = testMap.print()
+        createTableMap()
+        restCnt.innerText = testMap.restCnt()
+      }
+
+      function createTableMap() {
+        if (mapDiv.childNodes.length != 0) {
+          let t = document.getElementById('map-table')
+          t.remove()
+        }
+        let mapContainer = document.createElement('table')
+        mapContainer.id = 'map-table'
+        mapDiv.appendChild(mapContainer)
+        testMap.content.forEach((col, xind) => {
+          let newCol = document.createElement('tr')
+          mapContainer.appendChild(newCol)
+          col.forEach((item, yind) => {
+            let newGrid = document.createElement('td')
+            newGrid.id = `${item.num}-${xind}-${yind}`
+            newGrid.className = 'default-grid'
+            newGrid.innerText = item.show
+            newGrid.addEventListener('click', clickGrid)
+            newGrid.addEventListener('contextmenu', clickGrid)
+            newGrid.addEventListener('touchstart', touchstart)
+            newGrid.addEventListener('touchend', touchEnd)
+            newCol.appendChild(newGrid)
+          })
+        })
+      }
+
+      function clickGrid(e) {
+        e.preventDefault()
+        let list = e.target.id.split('-').map((i) => Number(i))
+        if (e.button == 0) {
+          next([list[1], list[2]])
+        } else if (e.button == 2) {
+          mark([list[1], list[2]])
+        }
+      }
+
+      function updateTableGrid() {
+        testMap.content.forEach((col, xind) => {
+          col.forEach((item, yind) => {
+            let id = `${item.num}-${xind}-${yind}`
+            let e = document.getElementById(id)
+            let classes = e.classList.value.split(' ')
+            e.classList.remove(...classes)
+            e.classList.add('default-grid')
+            if (item.show !== '') {
+              if (item.show == 'v') {
+                e.classList.add('marked')
+              } else if (item.show == '-') {
+                e.classList.add('bomb')
+              } else {
+                e.classList.add('open')
+              }
+            }
+            e.innerText = item.show
+          })
+        })
+      }
+
+      function next(index) {
+        if (index) {
+          ;[x, y] = index
+        } else {
+          let x = Number(xindex.value)
+          let y = Number(yindex.value)
+        }
+
+        if (testMap.bombIndex.length == 0) {
+          testMap.init([x, y])
+        }
+        testMap.choose([x, y])
+        // testMap.ifWin()
+        if (testMap.gameover == -1) {
+          document.getElementById('hint').innerText = 'BOOM! Game over.'
+          rmEvent()
+        } else if (testMap.gameover == 1) {
+          document.getElementById('hint').innerText =
+            'CONGRATULATIONS! You win.'
+          rmEvent()
+        }
+        // containerEle.innerText = testMap.print()
+        updateTableGrid()
+        restCnt.innerText = testMap.restCnt()
+      }
+
+      function mark(index) {
+        let [x, y] = index
+        let grid = testMap.content[x][y]
+        if (grid.marked == 1) {
+          grid.removeMark()
+        } else {
+          grid.mark()
+        }
+        // containerEle.innerText = testMap.print()
+        updateTableGrid()
+        restCnt.innerText = testMap.restCnt()
+        testMap.ifWin()
+        if (testMap.gameover == 1) {
+          document.getElementById('hint').innerText = 'you win'
+          testMap.showAll()
+          rmEvent()
+        }
+      }
+
+      function rmMark() {
+        let x = Number(xindex.value)
+        let y = Number(yindex.value)
+        testMap.content[x][y].removeMark()
+        // containerEle.innerText = testMap.print()
+        updateTableGrid()
+        restCnt.innerText = testMap.restCnt()
+      }
+
+      function rmEvent() {
+        testMap.content.forEach((col, xind) => {
+          col.forEach((item, yind) => {
+            let id = `${item.num}-${xind}-${yind}`
+            let e = document.getElementById(id)
+            e.removeEventListener('click', clickGrid)
+            e.removeEventListener('contextmenu', clickGrid)
+            e.removeEventListener('touchstart', touchstart)
+            e.removeEventListener('touchend', touchEnd)
+          })
+        })
+      }
+
+      function touchstart(e) {
+        e.preventDefault()
+        onTouch = 1
+        timeout = setTimeout(() => {
+          onTouch = 0
+          if (onTouch == 0) {
+            let list = e.target.id.split('-').map((i) => Number(i))
+            mark([list[1], list[2]])
+          }
+        }, 300)
+      }
+
+      function touchEnd(e) {
+        clearTimeout(timeout)
+        if (onTouch !== 0) {
+          e.button = 0
+          clickGrid(e)
+        }
+        onTouch = 0
+      }
+      startButton.addEventListener('click', start)
+    </script>
+    <style lang="css">
+      .default-grid {
+        height: 1rem;
+        width: 1rem;
+        min-width: 1rem;
+        line-height: 1rem;
+        border: solid 1px #000;
+        cursor: pointer;
+        text-align: center;
+        background-color: #333;
+      }
+
+      .open {
+        background-color: #fff;
+      }
+
+      .marked {
+        background-color: #666;
+        color: aliceblue;
+      }
+
+      .bomb {
+        background-color: red;
+      }
+    </style>
+  </body>
+</html>

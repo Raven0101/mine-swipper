@@ -5,22 +5,31 @@ var startButton = document.getElementById('start')
 var restCnt = document.getElementById('restCnt')
 var mapDiv = document.getElementById('map-container')
 var hintSpan = document.getElementById('hint')
+var defButton = document.getElementById('def')
 
 var testMap = undefined
 var onTouch = 0
 var timeout = 0
 const defHint = hintSpan.innerHTML
 
-function start() {
+function start(def = false) {
   let div = document.getElementById('restCnt-div')
   div.style.display = ''
-  let size = [Number(sizeEleX.value), Number(sizeEleY.value)]
-  let bombs = Number(bombEle.value)
+  let size = [10, 10]
+  let bombs = 40
+  if (!def) {
+    size = [Number(sizeEleX.value), Number(sizeEleY.value)]
+    bombs = Number(bombEle.value)
+  }
   testMap = new Maps(size, bombs)
   document.getElementById('hint').innerHTML = defHint
   // containerEle.innerText = testMap.print()
   createTableMap()
   restCnt.innerText = testMap.restCnt()
+}
+
+function startDef() {
+  start(true)
 }
 
 function createTableMap() {
@@ -163,3 +172,4 @@ function touchEnd(e) {
   onTouch = 0
 }
 startButton.addEventListener('click', start)
+defButton.addEventListener('click', startDef)
